@@ -1,16 +1,6 @@
-from bs4 import BeautifulSoup
-from urllib.request import Request, urlopen
-import re
+from urllib.request import urlopen
 
-req = Request('https://daftsex.com/playlist/187449/100017', headers={'User-Agent': 'Mozilla/5.0'})
-html_page = urlopen(req).read()
+html_page = urlopen("http://daftsex.com/").read().decode("utf-8")
 
-soup = BeautifulSoup(html_page, 'html.parser')
-links = []
-# print(soup)
-with open("twitter.html", "w", encoding="utf-8") as file:
-    file.write(soup.text)
-# for link in soup.findAll('a', attrs={'href': re.compile("^/movie/")}):
-#     links.append(link.get('href'))
-#
-# print(links)
+
+print(html_page)
