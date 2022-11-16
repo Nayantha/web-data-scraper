@@ -1,4 +1,7 @@
-import requests, os
+import os
+import shutil
+
+import requests
 from bs4 import BeautifulSoup
 
 MODEL_PAGE_URL = "https://yostagram.com/tag/viking-barbie-instagram/"
@@ -21,30 +24,75 @@ def get_pages(page:str, page_links:list):
         next_page = soup.find(name='a', class_="next page-numbers").get("href")
         get_pages(next_page, page_links)
     except AttributeError:
-        return
+        return page_links.copy()
 
-
-def get_image_link(image_page:str):
+def get_image_link_and_name(image_page:str):
     response = requests.get(image_page)
     soup = BeautifulSoup(response.content,features="html.parser")
-    page = soup.find(name='a', class_="wp-block-button__link wp-element-button", string="Download")
+    page = soup.find(name='a', class_="wp-block-button__link", string="Download")
     image_url = page.get("href")
     image_name = image_url[image_url.rfind("/")+1:]
+    return {"image_name": image_name, "image_url": image_url}
     
-    #save image
+def save_image(path:str, image_name:str, image_url:str):
     r = requests.get(image_url, allow_redirects=True)
-    open(image_name, 'wb').write(r.content)
+    if path.rfind('/') == len(path) - 1:
+        path = path.removesuffix("/")
+    open(f"{path}/{image_name}", 'wb').write(r.content)
 
+def get_folder_name(url:str):
+    return url[url.removesuffix("/").rfind("/")+1:].removesuffix("-instagram/").replace("-", " ").title()
 
-def make_folder_for_downloads(main_url:str):
-    # main_url == MODEL_PAGE_URL
-    folder_name = main_url[main_url.removesuffix("/").rfind("/")+1:].removesuffix("-instagram/").replace("-", " ")
+def make_folder_for_downloads(folder_name:str):
     if not os.path.exists(folder_name):
         os.makedirs(f"./{folder_name}")
+
+def is_image_already_exists(path:str, file_name:str):
+    files = os.listdir(path=path)
+    for file in files:
+        if file == file_name : #or file_name in file:
+            return True
+    return False
+
 
 # img_pages = []
 # get_pages(MODEL_PAGE_URL, img_pages)
 # print(len(img_pages))
 # print(img_pages[0])
-# get_image_link("https://yostagram.com/viking-barbie-instagram-319/")
+# get_image_link_and_name("https://yostagram.com/viking-barbie-instagram-319/")
 # make_folder_for_downloads(MODEL_PAGE_URL)
+
+def download_images_from_yostagram(model_page_link:str):
+    img_pages = []
+    img_data_list = []
+    folder_name = get_folder_name(model_page_link)
+    get_pages(model_page_link, img_pages)
+    for image_page in img_pages:
+        img_data_list.append(get_image_link_and_name(image_page))
+    print("All image links are retrieved.")
+    print("Makeing place for downloads...")
+    make_folder_for_downloads(folder_name)
+    for img_data_item in img_data_list:
+        img_name =  img_data_item["image_name"]
+        if not is_image_already_exists(f"./{folder_name}", img_name):
+            img_url =  img_data_item["image_url"]
+            save_image(path=f"./{folder_name}", image_name=img_name, image_url=img_url)
+        else:
+            print(f"{img_name} is already exists.")
+
+def make_file_cbz(path:str):
+    if path.rfind("/") == len(path) - 1:
+        path += "/"
+    output = path
+    dir_name = path
+    try:
+        zip_name = shutil.make_archive(output, "zip", "./")
+        os.rename(zip_name, zip_name.replace(".zip", ".cbz"))
+    except Exception:
+        print("error")
+
+if __name__ == "__main__":
+    make_file_cbz("Viking Barbie")
+    
+    
+    
