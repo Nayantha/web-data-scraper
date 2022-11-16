@@ -44,7 +44,8 @@ def get_image_link_and_name(image_page:str):
     soup = BeautifulSoup(response.content,features="html.parser")
     page = soup.find(name='a', class_="wp-block-button__link", string="Download")
     image_url = page.get("href")
-    image_name = image_url[image_url.rfind("/")+1:]
+    image_name = image_url[image_url.rfind("/")+1:] 
+    print(f"got {image_name}'s url at {image_url}")
     return {"image_name": image_name, "image_url": image_url}
     
 def save_image(path:str, image_name:str, image_url:str):
@@ -52,6 +53,7 @@ def save_image(path:str, image_name:str, image_url:str):
     if path.rfind('/') == len(path) - 1:
         path = path.removesuffix("/")
     open(f"{path}/{image_name}", 'wb').write(r.content)
+    print(f"{image_name} saved in {path}")
 
 def get_folder_name(url:str):
     return url[url.removesuffix("/").rfind("/")+1:].removesuffix("-instagram/").replace("-", " ").title()

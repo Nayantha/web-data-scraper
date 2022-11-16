@@ -6,17 +6,17 @@ Author: Krishanu Konar
 email: krishanukonar@gmail.com
 '''
 
-from tweepy import OAuthHandler, API
 import os
-import wget
 import sys
 
+import wget
+from tweepy import API, OAuthHandler
 
 ## all the 4 required Tokens
 CONSUMER_KEY = ""
 CONSUMER_SECRET = ""
-ACCESS_TOKEN = ""
-ACCESS_TOKEN_SECRET = ""
+ACCESS_TOKEN = "WGEFK6DDrF2M5ygy7kb3DMiS5"
+ACCESS_TOKEN_SECRET = "cruh8r3MVPEVOTSazgC2OmNpC94ViSI3KLdqYTBvPEqjMbtlKw"
 
 def main():
 	#Authentication
