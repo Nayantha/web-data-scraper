@@ -4,8 +4,19 @@ import shutil
 import requests
 from bs4 import BeautifulSoup
 
-MODEL_PAGE_URL = "https://yostagram.com/tag/viking-barbie-instagram/"
+MODEL_NAMES = ["alina-lando", 
+                   "cristy-ren",
+                   "katelyn-runck"
+                   ]
 
+def make_model_tag_urls(model_name:str):
+    model_name = model_name.lower().strip().replace(" ", "-")
+    url = f"https://yostagram.com/tag/{model_name}-instagram/"
+    req = requests.get(url=url)
+    if req.status_code != 200:
+        print(f"{model_name} not exit on yostagram or name is in wrong format.")
+    else:
+        return url
 
 def get_pages(page:str, page_links:list):
     response = requests.get(page)
@@ -74,9 +85,9 @@ def download_images_from_yostagram(model_page_link:str):
     make_folder_for_downloads(folder_name)
     for img_data_item in img_data_list:
         img_name =  img_data_item["image_name"]
-        if not is_image_already_exists(f"./{folder_name}", img_name):
+        if not is_image_already_exists(f"./models/{folder_name}", img_name):
             img_url =  img_data_item["image_url"]
-            save_image(path=f"./{folder_name}", image_name=img_name, image_url=img_url)
+            save_image(path=f"./models/{folder_name}", image_name=img_name, image_url=img_url)
         else:
             print(f"{img_name} is already exists.")
 
@@ -84,15 +95,22 @@ def make_file_cbz(path:str):
     if path.rfind("/") == len(path) - 1:
         path += "/"
     output = path
-    dir_name = path
+    # dir_name = path
     try:
-        zip_name = shutil.make_archive(output, "zip", "./")
+        make_folder_for_downloads("zip files")
+        zip_name = shutil.make_archive(output, "zip", path)
         os.rename(zip_name, zip_name.replace(".zip", ".cbz"))
     except Exception:
         print("error")
 
 if __name__ == "__main__":
-    make_file_cbz("Viking Barbie")
+    model_tag_urls = []
+    for model in MODEL_NAMES:
+        model_tag_urls.append(make_model_tag_urls(model))
+    
+    for tag_url in model_tag_urls:
+        print(MODEL_NAMES[model_tag_urls.index(tag_url)])
+        # download_images_from_yostagram(tag_url)
     
     
     
