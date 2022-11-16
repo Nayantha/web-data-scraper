@@ -4,11 +4,6 @@ import shutil
 import requests
 from bs4 import BeautifulSoup
 
-MODEL_NAMES = ["alina-lando", 
-                   "cristy-ren",
-                   "katelyn-runck"
-                   ]
-
 def make_model_tag_urls(model_name:str):
     model_name = model_name.lower().strip().replace(" ", "-")
     url = f"https://yostagram.com/tag/{model_name}-instagram/"
@@ -17,6 +12,13 @@ def make_model_tag_urls(model_name:str):
         print(f"{model_name} not exit on yostagram or name is in wrong format.")
     else:
         return url
+
+def get_all_models_from_site_map():
+    URL = "https://yostagram.com/site-map/"
+    req = requests.get(URL)
+    soup = BeautifulSoup(req.content, features="html.parser")
+    model_links = [item.get("href").replace("/tag/","").replace("-instagram/", "") for item in soup.find_all(name='a') if "instagram" in item.get("href")]
+    return model_links
 
 def get_pages(page:str, page_links:list):
     response = requests.get(page)
@@ -65,14 +67,6 @@ def is_image_already_exists(path:str, file_name:str):
             return True
     return False
 
-
-# img_pages = []
-# get_pages(MODEL_PAGE_URL, img_pages)
-# print(len(img_pages))
-# print(img_pages[0])
-# get_image_link_and_name("https://yostagram.com/viking-barbie-instagram-319/")
-# make_folder_for_downloads(MODEL_PAGE_URL)
-
 def download_images_from_yostagram(model_page_link:str):
     img_pages = []
     img_data_list = []
@@ -106,15 +100,15 @@ def make_file_cbz(path:str):
     except Exception:
         print("error")
 
+def archive_all_folders(path:str):
+    folders =  [file for file in os.listdir(path=path) if os.path.isdir(file)]
+    print(folders)
+
 if __name__ == "__main__":
-    # model_tag_urls = []
-    # for model in MODEL_NAMES:
-    #     model_tag_urls.append(make_model_tag_urls(model))
-    
-    # for tag_url in model_tag_urls:
-    #     print(MODEL_NAMES[model_tag_urls.index(tag_url)].title().replace("-", " "))
-    #     download_images_from_yostagram(tag_url)
-    
-    zip_name = "Viking Barbie.zip"          
-    os.rename(zip_name, zip_name.replace(".zip", ".cbz"))
+    model_names = get_all_models_from_site_map()
+    model_urls = [ make_model_tag_urls(model_name) for model_name in model_names]
+    for model_url in model_urls:
+        print(model_names[model_urls.index(model_url)])
+        download_images_from_yostagram(model_url)
+        
     
