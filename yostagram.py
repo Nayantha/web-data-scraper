@@ -5,15 +5,18 @@ import requests
 from bs4 import BeautifulSoup
 
 def make_model_tag_urls(model_name:str):
+    print("building url to image repositories....")
     model_name = model_name.lower().strip().replace(" ", "-")
     url = f"https://yostagram.com/tag/{model_name}-instagram/"
     req = requests.get(url=url)
     if req.status_code != 200:
         print(f"{model_name} not exit on yostagram or name is in wrong format.")
     else:
+        print(f"{model_name} image repo found in {url}")
         return url
 
 def get_all_models_from_site_map():
+    print("getting all urls of models.....")
     URL = "https://yostagram.com/site-map/"
     req = requests.get(URL)
     soup = BeautifulSoup(req.content, features="html.parser")
@@ -75,20 +78,28 @@ def download_images_from_yostagram(model_page_link:str):
     path = "./models"
     folder_name = get_folder_name(model_page_link)
     get_pages(model_page_link, img_pages)
+    
     for image_page in img_pages:
         img_data_list.append(get_image_link_and_name(image_page))
+        
     print("All image links are retrieved.")
     print("Makeing place for downloads...")
+    
     make_folder_for_downloads(path)
     path += f"/{folder_name}"
+    
     make_folder_for_downloads(path)
-    for img_data_item in img_data_list:
+    
+    img_data_list_len = len(img_data_list)
+    
+    for index,img_data_item in enumerate(img_data_list):
         img_name =  img_data_item["image_name"]
         if not is_image_already_exists(path, img_name):
             img_url =  img_data_item["image_url"]
             save_image(path=path, image_name=img_name, image_url=img_url)
         else:
             print(f"{img_name} is already exists.")
+        print(f"out of {img_data_list_len}, {index} images are downloaded.")
 
 def make_file_cbz(path:str):
     if path.rfind("/") == len(path) - 1:
