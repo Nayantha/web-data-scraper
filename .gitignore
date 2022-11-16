@@ -1,8 +1,11 @@
-Vikikng Barbie 
-chromedriver
-The 100 Greatest Movies _ Movies _ Empire_files
+models/
+chromedriver/
+The 100 Greatest Movies _ Movies _ Empire_files/
 *.html
 *.zip
+*.rar
 *.jpg
 *.jpeg
 *.png
+*.cbz
+*.cbr
